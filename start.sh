@@ -6,6 +6,6 @@
 # 使用docker-compose命令启动服务
 docker-compose up -d
 
-cd ./vue_shop_project
+cd ./vue3_shop
 
-npm run serve
+npm run dev
