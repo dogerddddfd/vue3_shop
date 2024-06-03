@@ -1,8 +1,11 @@
 <script setup>
 import { ElMenu, ElSubMenu, ElMenuItem, ElIcon } from 'element-plus'
-import getMenuList from './request.js'
+import { request } from '../../../utils/server';
 
-const menuList = await getMenuList()
+const menuList = await request({
+   method:'get',
+   url:`menus`
+})
 
 const icons = {
    125: 'User',
@@ -11,11 +14,13 @@ const icons = {
    102: 'List',
    145: 'DataAnalysis'
 }
+
 let activePath
 function saveNavState(getactivePath) {
    window.sessionStorage.setItem('activePath', getactivePath)
    activePath = getactivePath
 }
+
 </script>
 
 <template>

@@ -8,7 +8,7 @@
             <el-input v-model="login_form.password" />
          </el-form-item>
          <el-form-item size='large' style="float: right;">
-            <el-button type="primary" @click="submitForm(login_form_ref,login_form)">登录</el-button>
+            <el-button type="primary" @click="clickSbumit()">登录</el-button>
             <el-button>重置</el-button>
          </el-form-item>
       </el-form>
@@ -16,9 +16,13 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, toRaw } from 'vue'
 import { ElForm, ElFormItem, ElInput, ElButton } from 'element-plus'
-import submitForm from './request'
+import { submitForm } from '../../utils/submitForm'
+import { request } from '../../utils/server'
+import { login_rules } from './form_rules'
+import router from '../../router'
+
 
 const login_form_ref = ref()
 
@@ -27,14 +31,24 @@ const login_form = reactive({
    password: '123456',
 })
 
-const login_rules = reactive({
-   username: [
-      { required: true, message: '请输入用户名', trigger: 'change' }
-   ],
-   password: [
-      { required: true, message: '请输入密码', trigger: 'change' }
-   ]
-})
+
+const clickSbumit = async () => {
+   try {
+      await submitForm(login_form_ref)
+      const data = await request({
+         method: 'post',
+         url: `login`,
+         data: toRaw(login_form)
+      }, '登录成功')
+
+      window.sessionStorage.setItem('token', data.token)
+
+      router.push('/home')
+   }catch{
+
+   }
+}
+
 
 
 </script>
