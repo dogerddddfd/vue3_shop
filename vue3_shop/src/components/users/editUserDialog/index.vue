@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive,defineProps } from 'vue'
+import { ref, reactive } from 'vue'
 import { ElForm, ElFormItem, ElInput, ElButton } from 'element-plus';
 
 import { edit_rules } from './form_rules'
@@ -16,7 +16,7 @@ const edit_form = reactive(
    props.userInfo
 )
 
-const emit = defineEmits(['cancel_dialog_visible_event','update_user_list_event'])
+const emit = defineEmits(['close_edit_dialog_event','update_user_list_event'])
 
 
 const clickSubmit = async () => {
@@ -30,7 +30,7 @@ const clickSubmit = async () => {
             mobile: edit_form.mobile
          }
       }, '用户信息修改成功')
-      emit('cancel_dialog_visible_event')
+      emit('close_edit_dialog_event')
       emit('update_user_list_event')
    } catch {
 
@@ -52,7 +52,7 @@ const clickSubmit = async () => {
          <el-input v-model="edit_form.mobile" />
       </el-form-item>
       <div class="btn-div">
-         <el-button @click="emit('cancel_dialog_visible_event')">取消</el-button>
+         <el-button @click="emit('close_dialog_event')">取消</el-button>
          <el-button type="primary" @click="clickSubmit">确定</el-button>
       </div>
 
