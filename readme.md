@@ -2,7 +2,9 @@
 
 * vue3重构
 
-* 技术栈：vue3, element-plus, axios
+* 技术栈：
+> dokcer, mysql, node
+> 前端: vue3, element-plus, axios
 
 * ./start一键运行
 
