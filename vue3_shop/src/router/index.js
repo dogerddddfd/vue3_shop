@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from '../components/home/index.vue'
-import Welcome from '../components/welcome/index.vue'
+
 
 const routes = [
    {
@@ -10,11 +9,11 @@ const routes = [
    {
       path: '/login',
       name: 'Login',
-      component: () => import('../components/login/index.vue') 
+      component: () => import('../components/login/index.vue')
    },
    {
       path: "/home",
-      component:  () => import('../components/home/index.vue') ,
+      component: () => import('../components/home/index.vue'),
       redirect: '/welcome',
       children: [
          { path: '/welcome', component: () => import('../components/welcome/index.vue') },
@@ -34,5 +33,14 @@ const router = createRouter({
    history: createWebHistory(),
    routes
 });
+
+router.beforeEach((to, from,next) => {
+   if(to.path === '/login')return next()
+   if(!window.sessionStorage.getItem('token')){
+      return next('/login')
+   }
+   next()
+})
+
 
 export default router;
