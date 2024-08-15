@@ -1,6 +1,6 @@
 <script setup>
 import { ElMenu, ElSubMenu, ElMenuItem, ElIcon } from 'element-plus'
-import { request } from '../../../utils/server';
+import { request } from '@/utils/server';
 
 const menuList = await request({
    method:'get',

@@ -9,22 +9,22 @@ const routes = [
    {
       path: '/login',
       name: 'Login',
-      component: () => import('../components/login/index.vue')
+      component: () => import('@/page/login/index.vue')
    },
    {
       path: "/home",
-      component: () => import('../components/home/index.vue'),
+      component: () => import('@/page/home/index.vue'),
       redirect: '/welcome',
       children: [
-         { path: '/welcome', component: () => import('../components/welcome/index.vue') },
-         { path: '/users', component: () => import('../components/users/index.vue') },
-         { path: '/goods', component: () => import('../components/goods/index.vue') },
-         { path: '/orders', component: () => import('../components/orders/index.vue') },
-         { path: '/categories', component: () => import('../components/categories/index.vue') },
-         { path: '/params', component: () => import('../components/params/index.vue') },
-         { path: '/reports', component: () => import('../components/reports/index.vue') },
-         { path: '/rights', component: () => import('../components/rights/index.vue') },
-         { path: '/roles', component: () => import('../components/roles/index.vue') },
+         { path: '/welcome', component: () => import('@/page/welcome/index.vue') },
+         { path: '/users', component: () => import('@/page/users/index.vue') },
+         { path: '/goods', component: () => import('@/page/goods/index.vue') },
+         { path: '/orders', component: () => import('@/page/orders/index.vue') },
+         { path: '/categories', component: () => import('@/page/categories/index.vue') },
+         { path: '/params', component: () => import('@/page/params/index.vue') },
+         { path: '/reports', component: () => import('@/page/reports/index.vue') },
+         { path: '/rights', component: () => import('@/page/rights/index.vue') },
+         { path: '/roles', component: () => import('@/page/roles/index.vue') },
       ]
    }
 ];

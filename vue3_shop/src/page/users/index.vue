@@ -1,7 +1,8 @@
 <script setup>
 import {
    ElBreadcrumb, ElBreadcrumbItem, ElCard, ElTable, ElTableColumn, ElPagination
-   , ElInput, ElButton, ElConfigProvider, ElSwitch, ElTooltip, ElDialog,
+   , ElInput, ElButton, ElConfigProvider, ElTooltip, ElDialog,
+   ElMessage,
 } from 'element-plus';
 
 import {
@@ -12,7 +13,7 @@ import {
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { onBeforeMount, reactive, ref, toRaw } from 'vue';
 
-import { getUsersList, changeUserState } from './request'
+import { getUsersList } from './request'
 
 import AddUserDialog from './addUserDialog/index.vue'
 import EditUserDialog from './editUserDialog/index.vue'
@@ -21,7 +22,7 @@ import { openDeleteUserDialog } from './deleteUserDialog/index'
 
 const queryInfo = reactive({
    query: '',
-   pagesize: 2,
+   pagesize: 4,
    pagenum: 1
 })
 
@@ -33,10 +34,20 @@ onBeforeMount(async () => {
 
 
 async function updateListData() {
-   const data = await getUsersList(queryInfo)
-   usersListData.users = data.users
-   usersListData.total = data.total
-   queryInfo.pagenum = data.pagenum
+   try {
+      const data = await getUsersList(queryInfo)
+      usersListData.users = data.users
+      usersListData.total = data.total
+      queryInfo.pagenum = data.pagenum
+   } catch (error) {
+      ElMessage({
+         showClose: true,
+         message: error.message,
+         center: true,
+         type: 'error',
+      })
+   }
+
 }
 
 function handlePaginationChange() {
@@ -48,18 +59,19 @@ function handleSearchBtnClick() {
    updateListData()
 }
 
-function handleUserStateChange(scope_userInfo) {
-   changeUserState(toRaw(scope_userInfo))
-   updateListData()
-}
+// 用户状态改变
+// function handleUserStateChange(scope_userInfo) {
+//    changeUserState(toRaw(scope_userInfo))
+//    updateListData()
+// }
 
-//#region user info in dialog 
+//#region 对话框的用户数据
 const dialogUserInfo = reactive({
    id: '',
    username: '',
    email: '',
    mobile: '',
-   role_name:''
+   role_name: ''
 })
 
 const updateDialogUserInfo = (scope_userInfo) => {
@@ -72,7 +84,7 @@ const updateDialogUserInfo = (scope_userInfo) => {
 //#endregion
 
 
-//#region edit user dialog
+//#region 修改用户对话框
 const editUserDialogVisible = ref(false)
 
 const handleEditUserDialogOpen = (scope_userInfo) => {
@@ -88,7 +100,7 @@ const handleEditUserDialogClose = () => {
 }
 //#endregion
 
-//#region delete user dialog
+//#region 删除用户对话框
 const handleDeleteUserDialogOpen = async (scope_userInfo) => {
    updateDialogUserInfo(scope_userInfo)
 
@@ -101,22 +113,22 @@ const handleDeleteUserDialogOpen = async (scope_userInfo) => {
 
 //#endregion
 
-//#region add user dialog
+//#region 添加用户对话框
 const addUserDialogVisible = ref(false)
 
-const handleaddUserDialogOpen = (scope_userInfo) => {
+const handleAddUserDialogOpen = (scope_userInfo) => {
    addUserDialogVisible.value = true
    queryInfo.query = ''
 }
 
-const handleaddUserDialogClose = () => {
+const handleAddUserDialogClose = () => {
    addUserDialogVisible.value = false;
    updateListData()
 }
 //#endregion
 
 
-//#region edit role dialog
+//#region 更改用户角色对话框
 const editRoleDialogVisible = ref(false)
 
 const handleEditRoleDialogOpen = (scope_userInfo) => {
@@ -136,7 +148,7 @@ const handleEditRoleDialogClose = () => {
 
 
 <template>
-   <el-breadcrumb separator=">"><!-- 面包屑 --> 
+   <el-breadcrumb separator=">"><!-- 面包屑 -->
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
@@ -150,7 +162,7 @@ const handleEditRoleDialogClose = () => {
                   <el-button :icon="Search" @click="handleSearchBtnClick" />
                </template>
             </el-input>
-            <el-button type="primary" @click="handleaddUserDialogOpen">添加用户</el-button>
+            <el-button type="primary" @click="handleAddUserDialogOpen">添加用户</el-button>
          </div>
          <el-config-provider :locale='zhCn'>
             <el-table :data="usersListData.users" border style="width: 100%" stripe><!-- 列表 -->
@@ -159,11 +171,11 @@ const handleEditRoleDialogClose = () => {
                <el-table-column prop="email" label="邮箱" width="180" />
                <el-table-column prop="mobile" label="电话" width="150" />
                <el-table-column prop="role_name" label="权限" width="150" />
-               <el-table-column prop="mg_state" label="状态" width="80">
+               <!-- <el-table-column prop="mg_state" label="状态" width="80">
                   <template #default="scope">
                      <el-switch v-model="scope.row.mg_state" @change="handleUserStateChange(scope.row)" />
                   </template>
-               </el-table-column>
+               </el-table-column> -->
                <el-table-column label="操作">
                   <template #default="scope">
                      <el-button type="primary" :icon="Edit" @click="handleEditUserDialogOpen(scope.row)"></el-button>
@@ -185,13 +197,13 @@ const handleEditRoleDialogClose = () => {
       </div>
    </el-Card>
 
-   <el-dialog v-model="editUserDialogVisible" title="修改用户数据" :close-on-click-modal="false"><!-- edit -->
+   <el-dialog v-model="editUserDialogVisible" title="修改用户数据" :close-on-click-modal="false" destroy-on-close><!-- edit -->
       <EditUserDialog :userInfo="dialogUserInfo" @close_edit_dialog_event="handleEditUserDialogClose"
          @update_user_list_event="updateListData" />
    </el-dialog>
 
-   <el-dialog v-model="addUserDialogVisible" title="添加用户" :close-on-click-modal="false"><!-- add -->
-      <AddUserDialog @close_add_dialog_event="handleaddUserDialogClose" @update_user_list_event="updateListData" />
+   <el-dialog v-model="addUserDialogVisible" title="添加用户" :close-on-click-modal="false" destroy-on-close><!-- add -->
+      <AddUserDialog @close_add_dialog_event="handleAddUserDialogClose" @update_user_list_event="updateListData" />
    </el-dialog>
 
    <el-dialog v-model="editRoleDialogVisible" title="编辑权限" :close-on-click-modal="false" destroy-on-close><!-- add -->
@@ -230,7 +242,8 @@ const handleEditRoleDialogClose = () => {
    }
 
 }
-.el-dialog{
+
+.el-dialog {
    max-width: 500px;
 }
 </style>

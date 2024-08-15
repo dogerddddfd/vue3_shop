@@ -51,6 +51,7 @@ function logout() {
    height: 100%;
 
    .el-header {
+      height: 70px;
       background-color: #2c3e50;
       color: #ecf0f1;
       padding: 0;
@@ -69,7 +70,7 @@ function logout() {
             height: 50px;
             border-radius: 50%;
             border: 3px solid #FFFF47;
-            box-shadow: 0px 0px 20px #FFFF47;
+            box-shadow: 0px 0px 7px #FFFF47;
 
             margin: 0 20px;
 

@@ -15,7 +15,7 @@ const checkMobile = (rule, value, callback) => {
    callback(new Error('请输入正确的电话'))
 }
 
-export const add_rules = reactive({
+export const addRules = reactive({
    username: [
       { required: true, message: '请输入用户名', trigger: 'change' }
    ],

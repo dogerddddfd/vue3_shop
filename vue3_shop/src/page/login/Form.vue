@@ -17,7 +17,7 @@
 
 <script setup>
 import { reactive, ref, toRaw } from 'vue'
-import { ElForm, ElFormItem, ElInput, ElButton } from 'element-plus'
+import { ElForm, ElFormItem, ElInput, ElButton, ElMessage } from 'element-plus'
 import { submitForm } from '../../utils/submitForm'
 import { request } from '../../utils/server'
 import { login_rules } from './form_rules'
@@ -44,8 +44,13 @@ const clickSbumit = async () => {
       window.sessionStorage.setItem('token', data.token)
 
       router.push('/home')
-   }catch{
-
+   }catch(error){
+      ElMessage({
+         showClose: true,
+         message: error.message,
+         center: true,
+         type: 'error',
+      })
    }
 }
 

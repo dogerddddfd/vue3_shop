@@ -1,10 +1,10 @@
 <script setup>
 import { ref, reactive } from 'vue'
-import { ElForm, ElFormItem, ElInput, ElButton } from 'element-plus';
+import { ElForm, ElFormItem, ElInput, ElButton, ElMessage } from 'element-plus';
 
 import { edit_rules } from './form_rules'
-import { request } from '../../../utils/server'
-import { submitForm } from '../../../utils/submitForm'
+import { request } from '@/utils/server'
+import { submitForm } from '@/utils/submitForm'
 
 const edit_user_form_ref = ref()
 
@@ -16,7 +16,7 @@ const edit_form = reactive(
    props.userInfo
 )
 
-const emit = defineEmits(['close_edit_dialog_event','update_user_list_event'])
+const emit = defineEmits(['close_edit_dialog_event', 'update_user_list_event'])
 
 
 const clickSubmit = async () => {
@@ -29,11 +29,22 @@ const clickSubmit = async () => {
             email: edit_form.email,
             mobile: edit_form.mobile
          }
-      }, '用户信息修改成功')
+      })
+      ElMessage({
+         showClose: true,
+         message: '用户信息修改成功',
+         center: true,
+         type: 'success',
+      })
       emit('close_edit_dialog_event')
       emit('update_user_list_event')
-   } catch {
-
+   } catch (error) {
+      ElMessage({
+         showClose: true,
+         message: error.message,
+         center: true,
+         type: 'error',
+      })
    }
 
 }

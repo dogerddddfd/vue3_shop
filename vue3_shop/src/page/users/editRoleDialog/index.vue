@@ -42,7 +42,13 @@ const clickSubmit = async () => {
       data: {
          rid: role_form.value
       }
-   }, '修改角色成功')
+   })
+   ElMessage({
+      showClose: true,
+      message: '修改角色成功',
+      center: true,
+      type: 'success',
+   })
    emit('close_edit_role_dialog_event')
    emit('update_user_list_event')
 }
