@@ -22,8 +22,7 @@ api.interceptors.request.use((config) => {
 export async function request(form) {
 
    // console.log(form)
-   const { data: res } = await api(form
-   )
+   const { data: res } = await api(form)
    if (!(res.meta.status >= 200 && res.meta.status < 300))
       throw new Error(res.meta.msg)
    return res.data

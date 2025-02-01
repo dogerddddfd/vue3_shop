@@ -4,23 +4,27 @@ import {
    Edit, Delete, Setting, CaretRight
 } from '@element-plus/icons-vue'
 
+import { request } from '@/utils/server'
 import { onBeforeMount, reactive, ref } from 'vue';
-import { getRoleList } from './request';
 import AddRoleDialog from './addRoleDialog/index.vue'
 import EditRoleDialog from './editRoleDialog/index.vue'
+import SetRightDialog from './setRightDialog/index.vue'
 
 let roleList = reactive({ data: [] })
 
 //更新数据
 async function updateListData() {
-   roleList.data = await getRoleList()
+   roleList.data = await request({
+      method: 'get',
+      url: 'roles'
+   })
 }
 
 onBeforeMount(async () => {
    updateListData()
 })
 
-//#region 添加角色
+//#region 添加职位
 const addRoleDialogVisible = ref(false)
 
 const handleAddRoleDialogOpen = () => {
@@ -31,7 +35,7 @@ const handleAddRoleDialogOpen = () => {
 
 //#region 修改用户对话框
 const dialogRoleInfo = reactive({
-   id:'',
+   id: '',
    roleName: '',
    roleDesc: ''
 })
@@ -51,9 +55,22 @@ const handleEditRoleDialogOpen = (scopeInfo) => {
 
 //#endregion
 
+//#region 修改权限对话框
+const setRightDialogVisible = ref(false)
+
+const handleSetRightDialogOpen = (scopeInfo) => {
+   updateDialogRoleInfo(scopeInfo)
+   setRightDialogVisible.value = true
+}
+
+//#endregion
+
+
+
 const closeDialog = () => {
    addRoleDialogVisible.value = false;
    editRoleDialogVisible.value = false;
+   setRightDialogVisible.value = false;
    updateListData()
 }
 
@@ -65,12 +82,12 @@ const closeDialog = () => {
    <el-breadcrumb separator=">">
       <el-breadcrumb-item :to="{ path: '/home' }">首页</el-breadcrumb-item>
       <el-breadcrumb-item>权限管理</el-breadcrumb-item>
-      <el-breadcrumb-item>角色列表</el-breadcrumb-item>
+      <el-breadcrumb-item>职位列表</el-breadcrumb-item>
    </el-breadcrumb>
    <el-Card>
       <div class="container">
          <div class="input-btn-container"><!-- 顶部按钮-->
-            <el-button type="primary" @click="handleAddRoleDialogOpen">添加角色</el-button>
+            <el-button type="primary" @click="handleAddRoleDialogOpen">添加职位</el-button>
          </div>
 
          <el-table :data="roleList.data" border style="width: 100%" stripe><!-- 列表 -->
@@ -105,13 +122,13 @@ const closeDialog = () => {
             </el-table-column>
 
             <el-table-column type="index" width="50" />
-            <el-table-column prop="roleName" label="角色名称" width="150" />
-            <el-table-column prop="roleDesc" label="角色描述" width="300" />
+            <el-table-column prop="roleName" label="职位名称" width="150" />
+            <el-table-column prop="roleDesc" label="职位描述" width="300" />
             <el-table-column label="操作">
                <template #default="scope">
                   <el-button type="primary" :icon="Edit" @click="handleEditRoleDialogOpen(scope.row)">编辑</el-button>
                   <el-button type="warning" :icon="Setting"
-                     @click="handleEditRoleDialogOpen(scope.row)">分配权限</el-button>
+                     @click="handleSetRightDialogOpen(scope.row)">分配权限</el-button>
                   <el-button type="danger" :icon="Delete" @click="handleDeleteRoleDialogOpen(scope.row)">删除</el-button>
                </template>
 
@@ -119,7 +136,7 @@ const closeDialog = () => {
          </el-table>
 
 
-         <el-dialog v-model="addRoleDialogVisible" title="添加角色" :close-on-click-modal="false"
+         <el-dialog v-model="addRoleDialogVisible" title="添加职位" :close-on-click-modal="false"
             destroy-on-close><!-- add -->
             <AddRoleDialog @close_dialog_event="closeDialog" @update_role_list_event="updateListData" />
          </el-dialog>
@@ -127,6 +144,12 @@ const closeDialog = () => {
          <el-dialog v-model="editRoleDialogVisible" title="编辑权限" :close-on-click-modal="false"
             destroy-on-close><!-- add -->
             <EditRoleDialog :roleInfo="dialogRoleInfo" @close_dialog_event="closeDialog"
+               @update_role_list_event="updateListData" />
+         </el-dialog>
+
+         <el-dialog v-model="setRightDialogVisible" title="编辑权限" :close-on-click-modal="false"
+            destroy-on-close><!-- add -->
+            <SetRightDialog :roleInfo="dialogRoleInfo" @close_dialog_event="closeDialog"
                @update_role_list_event="updateListData" />
          </el-dialog>
 

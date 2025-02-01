@@ -1,7 +1,7 @@
 <script setup>
 import {
    ElBreadcrumb, ElBreadcrumbItem, ElCard, ElTable, ElTableColumn, ElPagination
-   , ElInput, ElButton, ElConfigProvider, ElTooltip, ElDialog,
+   , ElInput, ElButton, ElConfigProvider, ElTooltip, ElDialog,ElSwitch,
    ElMessage,
 } from 'element-plus';
 
@@ -13,8 +13,7 @@ import {
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import { onBeforeMount, reactive, ref, toRaw } from 'vue';
 
-import { getUsersList } from './request'
-
+import { request } from '@/utils/server'
 import AddUserDialog from './addUserDialog/index.vue'
 import EditUserDialog from './editUserDialog/index.vue'
 import EditRoleDialog from './editRoleDialog/index.vue'
@@ -35,7 +34,11 @@ onBeforeMount(async () => {
 
 async function updateListData() {
    try {
-      const data = await getUsersList(queryInfo)
+      const data = await request({
+         method: 'get',
+         url: './users',
+         params: queryInfo
+      })
       usersListData.users = data.users
       usersListData.total = data.total
       queryInfo.pagenum = data.pagenum
@@ -60,10 +63,16 @@ function handleSearchBtnClick() {
 }
 
 // 用户状态改变
-// function handleUserStateChange(scope_userInfo) {
-//    changeUserState(toRaw(scope_userInfo))
-//    updateListData()
-// }
+async function handleUserStateChange(scope_userInfo) {
+   await request({
+      method: 'put',
+      url: `users/${toRaw(scope_userInfo.id)}/state/${toRaw(scope_userInfo.mg_state)}`,
+   })
+   // changeUserState(toRaw(scope_userInfo))
+   updateListData()
+}
+
+
 
 //#region 对话框的用户数据
 const dialogUserInfo = reactive({
@@ -171,11 +180,11 @@ const handleEditRoleDialogClose = () => {
                <el-table-column prop="email" label="邮箱" width="180" />
                <el-table-column prop="mobile" label="电话" width="150" />
                <el-table-column prop="role_name" label="权限" width="150" />
-               <!-- <el-table-column prop="mg_state" label="状态" width="80">
+               <el-table-column prop="mg_state" label="状态" width="80">
                   <template #default="scope">
                      <el-switch v-model="scope.row.mg_state" @change="handleUserStateChange(scope.row)" />
                   </template>
-               </el-table-column> -->
+               </el-table-column>
                <el-table-column label="操作">
                   <template #default="scope">
                      <el-button type="primary" :icon="Edit" @click="handleEditUserDialogOpen(scope.row)"></el-button>
@@ -197,7 +206,8 @@ const handleEditRoleDialogClose = () => {
       </div>
    </el-Card>
 
-   <el-dialog v-model="editUserDialogVisible" title="修改用户数据" :close-on-click-modal="false" destroy-on-close><!-- edit -->
+   <el-dialog v-model="editUserDialogVisible" title="修改用户数据" :close-on-click-modal="false"
+      destroy-on-close><!-- edit -->
       <EditUserDialog :userInfo="dialogUserInfo" @close_edit_dialog_event="handleEditUserDialogClose"
          @update_user_list_event="updateListData" />
    </el-dialog>

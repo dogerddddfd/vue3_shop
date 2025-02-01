@@ -26,7 +26,7 @@ const clickSubmit = async () => {
       })
       ElMessage({
          showClose: true,
-         message: '添加角色成功',
+         message: '添加职位成功',
          center: true,
          type: 'success',
       })
@@ -48,10 +48,10 @@ const clickSubmit = async () => {
 
 <template>
    <el-form ref="FormRef" :model="addForm" :rules="formRules" label-width="80px" label-position="right">
-      <el-form-item label="角色名称" prop="roleName">
+      <el-form-item label="职位名称" prop="roleName">
          <el-input v-model="addForm.roleName" ></el-input>
       </el-form-item>
-      <el-form-item label="角色描述" prop="roleDesc">
+      <el-form-item label="职位描述" prop="roleDesc">
          <el-input v-model="addForm.roleDesc"></el-input>
       </el-form-item>
       <div class="btn-div">

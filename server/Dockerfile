@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:20
 WORKDIR /home/WORKDIR/
 EXPOSE 8888
 COPY package.json /home/WORKDIR/

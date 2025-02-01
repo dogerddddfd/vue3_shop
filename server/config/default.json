@@ -11,7 +11,8 @@
 	},
 	"db_config" : {
 		"protocol" : "mysql",
-		"host" : "shop-mysql",
+
+		"host": "mysql",
 		"database" : "mydb",
 		"user" : "root",
 		"password" : "123456",

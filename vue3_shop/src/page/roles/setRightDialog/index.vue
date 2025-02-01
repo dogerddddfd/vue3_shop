@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, toRaw } from 'vue'
+import { ref, reactive, toRaw, onBeforeMount } from 'vue'
 import { ElForm, ElFormItem, ElInput, ElButton, ElMessage } from 'element-plus';
 import { formRules } from './form_rules'
 import { request } from '@/utils/server'
@@ -12,14 +12,18 @@ const props = defineProps({
    roleInfo: Object
 })
 
-const editForm = reactive(
-   {
-      roleName: props.roleInfo.roleName,
-      roleDesc: props.roleInfo.roleDesc
-   }
-)
 const roleID = ref(props.roleInfo.id)
-console.log(editForm)
+
+let rightTree = undefined
+
+onBeforeMount(async () => {
+   const data = await request({
+      method: 'get',
+      url: `rights/tree`
+   })
+   rightTree = reactive(data)
+   console.log(rightTree)
+})
 
 const emit = defineEmits(['close_dialog_event', 'update_role_list_event'])
 
@@ -56,16 +60,11 @@ const clickSubmit = async () => {
 
 <template>
    <el-form ref="formRef" :model="editForm" :rules="formRules" label-width="80px" label-position="right">
-      <el-form-item label="职位名称" prop="roleName">
-         <el-input v-model="editForm.roleName"></el-input>
-      </el-form-item>
-      <el-form-item label="职位描述" prop="roleDesc">
-         <el-input v-model="editForm.roleDesc"></el-input>
-      </el-form-item>
-      <div class="btn-div">
-         <el-button @click="emit('close_dialog_event')">取消</el-button>
-         <el-button type="primary" @click="clickSubmit">确定</el-button>
-      </div>
+      <el-tree :data="rightTree" :props="{
+         label: 'authName',
+         children: 'children',
+      }" show-checkbox node-key="id" default-expand-all :default-checked-keys="defKeys" ref="treeRef">
+      </el-tree>
 
    </el-form>
 </template>
