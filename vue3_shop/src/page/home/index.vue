@@ -27,11 +27,7 @@ function logout() {
          </el-header>
          <el-container class="main-container">
             <el-aside width="150px">
-               <Suspense>
-                  <template #default>
-                     <Shop_Menu />
-                  </template>
-               </Suspense>
+               <Shop_Menu />
             </el-aside>
             <el-main>
                <router-view></router-view>
@@ -44,6 +40,7 @@ function logout() {
 <style lang="less" scoped>
 .el-container {
    height: 100%;
+   overflow: hidden;
 }
 
 .common-layout {

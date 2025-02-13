@@ -1,5 +1,5 @@
 <script setup>
-import { ElBreadcrumb, ElBreadcrumbItem, ElCard, ElButton, ElTable, ElTableColumn, ElTag, ElRow, ElDialog } from 'element-plus';
+import { ElBreadcrumb, ElBreadcrumbItem, ElCard, ElButton, ElTable, ElTableColumn, ElTag, ElRow, ElDialog, } from 'element-plus';
 import {
    Edit, Delete, Setting, CaretRight
 } from '@element-plus/icons-vue'
@@ -9,6 +9,7 @@ import { onBeforeMount, reactive, ref } from 'vue';
 import AddRoleDialog from './addRoleDialog/index.vue'
 import EditRoleDialog from './editRoleDialog/index.vue'
 import SetRightDialog from './setRightDialog/index.vue'
+import { openDeleteRoleDialog, openCancelRightOfRoleDialog } from './deleteRoleDialog/index.js'
 
 let roleList = reactive({ data: [] })
 
@@ -24,6 +25,22 @@ onBeforeMount(async () => {
    updateListData()
 })
 
+
+const dialogInfo = reactive({
+   id: '',
+   roleName: '',
+   roleDesc: '',
+   children: []
+})
+
+const updateDialogInfo = (scopeInfo) => {
+   dialogInfo.id = scopeInfo.id
+   dialogInfo.roleName = scopeInfo.roleName
+   dialogInfo.roleDesc = scopeInfo.roleDesc
+   dialogInfo.children = scopeInfo.children
+}
+
+
 //#region 添加职位
 const addRoleDialogVisible = ref(false)
 
@@ -34,33 +51,50 @@ const handleAddRoleDialogOpen = () => {
 
 
 //#region 修改用户对话框
-const dialogRoleInfo = reactive({
-   id: '',
-   roleName: '',
-   roleDesc: ''
-})
-
-const updateDialogRoleInfo = (scopeInfo) => {
-   dialogRoleInfo.id = scopeInfo.id
-   dialogRoleInfo.roleName = scopeInfo.roleName
-   dialogRoleInfo.roleDesc = scopeInfo.roleDesc
-}
 
 const editRoleDialogVisible = ref(false)
 
 const handleEditRoleDialogOpen = (scopeInfo) => {
-   updateDialogRoleInfo(scopeInfo)
+   updateDialogInfo(scopeInfo)
    editRoleDialogVisible.value = true
 }
 
 //#endregion
 
 //#region 修改权限对话框
+
 const setRightDialogVisible = ref(false)
 
 const handleSetRightDialogOpen = (scopeInfo) => {
-   updateDialogRoleInfo(scopeInfo)
+   updateDialogInfo(scopeInfo)
    setRightDialogVisible.value = true
+}
+
+//#endregion
+
+
+//#region 删除职位对话框
+
+
+const handleDeleteRoleDialogOpen = async (scopeInfo) => {
+
+   await openDeleteRoleDialog(scopeInfo)
+
+   closeDialog()
+   updateListData()
+}
+
+//#endregion
+
+//#region 删除权限对话框
+
+
+const handleCancelRightOfRoleDialogOpen = async (roleId, rightId) => {
+
+   await openCancelRightOfRoleDialog(roleId, rightId)
+
+   closeDialog()
+   updateListData()
 }
 
 //#endregion
@@ -71,7 +105,8 @@ const closeDialog = () => {
    addRoleDialogVisible.value = false;
    editRoleDialogVisible.value = false;
    setRightDialogVisible.value = false;
-   updateListData()
+   updateDialogInfo({})
+   // updateListData()
 }
 
 
@@ -95,28 +130,31 @@ const closeDialog = () => {
                <template #default="scope">
                   <el-row v-for="(item1, i1) in scope.row.children" :key="item1.id">
                      <!-- 一级权限 -->
-                     <el-col :span="10">
-                        <el-tag closable @close="remveRightByid(scope.row, item1.id)">{{ item1.authName }}</el-tag>
+                     <div :span="10">
+                        <el-tag closable @close="handleCancelRightOfRoleDialogOpen(scope.row.id, item1.id)">{{
+                           item1.authName }}</el-tag>
                         <i class="el-icon">
                            <CaretRight />
                         </i>
-                     </el-col>
+                     </div>
                      <!-- 二三级权限 -->
-                     <el-col :span="19">
+                     <div :span="19">
                         <el-row v-for="(item2, i2) in item1.children" :key="item2.id" :class="['no-bdtop-bot']">
-                           <el-col :span="6">
-                              <el-tag type="success" closable @close="remveRightByid(scope.row, item2.id)">{{
-                                 item2.authName }}</el-tag>
+                           <div :span="6">
+                              <el-tag type="success" closable
+                                 @close="handleCancelRightOfRoleDialogOpen(scope.row.id, item2.id)">{{
+                                    item2.authName }}</el-tag>
                               <i class="el-icon">
                                  <CaretRight />
                               </i>
-                           </el-col>
-                           <el-col :span="18">
+                           </div>
+                           <div :span="18">
                               <el-tag v-for="(item3, i3) in item2.children" :key="item3.id" type="warning" closable
-                                 @close="remveRightByid(scope.row, item3.id)">{{ item3.authName }}</el-tag>
-                           </el-col>
+                                 @close="handleCancelRightOfRoleDialogOpen(scope.row.id, item3.id)">{{ item3.authName
+                                 }}</el-tag>
+                           </div>
                         </el-row>
-                     </el-col>
+                     </div>
                   </el-row>
                </template>
             </el-table-column>
@@ -141,15 +179,15 @@ const closeDialog = () => {
             <AddRoleDialog @close_dialog_event="closeDialog" @update_role_list_event="updateListData" />
          </el-dialog>
 
-         <el-dialog v-model="editRoleDialogVisible" title="编辑权限" :close-on-click-modal="false"
+         <el-dialog v-model="editRoleDialogVisible" title="编辑" :close-on-click-modal="false"
             destroy-on-close><!-- add -->
-            <EditRoleDialog :roleInfo="dialogRoleInfo" @close_dialog_event="closeDialog"
+            <EditRoleDialog :dialogInfo="dialogInfo" @close_dialog_event="closeDialog"
                @update_role_list_event="updateListData" />
          </el-dialog>
 
-         <el-dialog v-model="setRightDialogVisible" title="编辑权限" :close-on-click-modal="false"
+         <el-dialog v-model="setRightDialogVisible" title="分配权限" :close-on-click-modal="false"
             destroy-on-close><!-- add -->
-            <SetRightDialog :roleInfo="dialogRoleInfo" @close_dialog_event="closeDialog"
+            <SetRightDialog :dialogInfo="dialogInfo" @close_dialog_event="closeDialog"
                @update_role_list_event="updateListData" />
          </el-dialog>
 
@@ -201,7 +239,7 @@ const closeDialog = () => {
                border-bottom: none !important;
             }
 
-            el-col {
+            div {
                min-width: 150px;
             }
          }

@@ -9,17 +9,17 @@ import { submitForm } from '@/utils/submitForm'
 const formRef = ref()
 
 const props = defineProps({
-   roleInfo: Object
+   dialogInfo: Object
 })
 
 const editForm = reactive(
    {
-      roleName: props.roleInfo.roleName,
-      roleDesc: props.roleInfo.roleDesc
+      roleName: props.dialogInfo.roleName,
+      roleDesc: props.dialogInfo.roleDesc
    }
 )
-const roleID = ref(props.roleInfo.id)
-console.log(editForm)
+const roleID = ref(props.dialogInfo.id)
+// console.log(editForm)
 
 const emit = defineEmits(['close_dialog_event', 'update_role_list_event'])
 

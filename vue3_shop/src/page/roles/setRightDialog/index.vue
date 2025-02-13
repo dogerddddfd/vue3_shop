@@ -1,20 +1,31 @@
 <script setup>
 import { ref, reactive, toRaw, onBeforeMount } from 'vue'
-import { ElForm, ElFormItem, ElInput, ElButton, ElMessage } from 'element-plus';
-import { formRules } from './form_rules'
+import { ElForm, ElFormItem, ElInput, ElButton, ElMessage, ElTree } from 'element-plus';
 import { request } from '@/utils/server'
-import { submitForm } from '@/utils/submitForm'
 
 
-const formRef = ref()
+const treeRef = ref()
 
 const props = defineProps({
-   roleInfo: Object
+   dialogInfo: Object
 })
 
-const roleID = ref(props.roleInfo.id)
+const roleID = ref(props.dialogInfo.id)
+
+const defKeys = reactive([])
 
 let rightTree = undefined
+
+function getLeafKeys(children, defKeys) {
+   // console.log(children)
+   children.forEach(item => {
+      if (!item.children || item.children.length === 0) {
+         defKeys.push(item.id + "")
+      } else {
+         getLeafKeys(item.children, defKeys)
+      }
+   })
+}
 
 onBeforeMount(async () => {
    const data = await request({
@@ -22,19 +33,31 @@ onBeforeMount(async () => {
       url: `rights/tree`
    })
    rightTree = reactive(data)
-   console.log(rightTree)
+   getLeafKeys(toRaw(props.dialogInfo.children), defKeys)
+   if (defKeys.length === 0) {
+      defKeys.push("")
+   }
 })
+
+
 
 const emit = defineEmits(['close_dialog_event', 'update_role_list_event'])
 
 
 const clickSubmit = async () => {
+   const keys = [
+      ...treeRef.value.getCheckedKeys(),
+      ...treeRef.value.getHalfCheckedKeys(),
+   ]
+   const idStr = keys.join(',')
+
    try {
-      await submitForm(formRef)
       await request({
-         method: 'put',
-         url: `/roles/${roleID.value}`,
-         data: toRaw(editForm)
+         method: 'post',
+         url: `/roles/${roleID.value}/rights`,
+         data: {
+            rids: idStr
+         }
       })
       ElMessage({
          showClose: true,
@@ -59,13 +82,17 @@ const clickSubmit = async () => {
 </script>
 
 <template>
-   <el-form ref="formRef" :model="editForm" :rules="formRules" label-width="80px" label-position="right">
+   <el-form ref="formRef" label-width="80px" label-position="right">
       <el-tree :data="rightTree" :props="{
          label: 'authName',
          children: 'children',
-      }" show-checkbox node-key="id" default-expand-all :default-checked-keys="defKeys" ref="treeRef">
-      </el-tree>
+      }" show-checkbox node-key="id" default-expand-all :default-checked-keys="[...defKeys]" ref="treeRef">
 
+      </el-tree>
+      <div class="btn-div">
+         <el-button type="primary" @click="clickSubmit">提交</el-button>
+         <el-button @click="$emit('close_dialog_event')">取消</el-button>
+      </div>
    </el-form>
 </template>
 
